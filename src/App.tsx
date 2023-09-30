@@ -2,13 +2,12 @@ import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
 
 import plus from "./assets/plus.svg";
-import trash from "./assets/trash.svg";
 import clipboard from "./assets/clipboard.svg";
-import check from "./assets/check.svg";
 
 import { Header } from "./components/Header";
 
 import styles from "./App.module.css";
+import { Task } from "./components/Task";
 
 interface Task {
   id: string;
@@ -19,6 +18,18 @@ interface Task {
 export function App() {
   const [input, setInput] = useState("");
   const [listTasks, setListTasks] = useState<Task[]>([]);
+
+  function handleDeleteTask(id: string) {
+    const newTasks = listTasks.filter((task) => task.id !== id);
+    setListTasks(newTasks);
+  }
+
+  function handleCompleteTask(id: string) {
+    const newTasks = listTasks.map((task) =>
+      task.id === id ? { ...task, isComplete: !task.isComplete } : task
+    );
+    setListTasks(newTasks);
+  }
 
   function createTask(input: string) {
     const task: Task = {
@@ -91,34 +102,14 @@ export function App() {
             ) : (
               <ul>
                 {listTasks.map((task) => (
-                  <li key={task.id} className={task.isComplete ? styles.taskCompleted : styles.task}>
-                    <div className={styles.checkboxBox}>
-                      <input
-                        type="checkbox"
-                        checked={task.isComplete}
-                        onChange={() => {
-                          const newTasks = listTasks.map((item) =>
-                            item.id === task.id
-                              ? { ...item, isComplete: !item.isComplete }
-                              : item
-                          );
-                          setListTasks(newTasks);
-                        }}
-                      />
-                      <img src={check} alt="" />
-                    </div>
-                    <p>{task.name}</p>
-                    <button
-                      onClick={() => {
-                        const newTasks = listTasks.filter(
-                          (item) => item.id !== task.id
-                        );
-                        setListTasks(newTasks);
-                      }}
-                    >
-                      <img src={trash} alt="trash" />
-                    </button>
-                  </li>
+                  <Task
+                    key={task.id}
+                    id={task.id}
+                    name={task.name}
+                    isComplete={task.isComplete}
+                    handleDeleteTask={handleDeleteTask}
+                    handleCompleteTask={handleCompleteTask}
+                  />
                 ))}
               </ul>
             )}
